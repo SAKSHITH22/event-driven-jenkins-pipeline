@@ -4,7 +4,6 @@ resource "aws_cloudwatch_event_rule" "daily_report" {
 }
 
 resource "aws_cloudwatch_event_target" "report_lambda_target" {
-  rule      = aws_cloudwatch_event_rule.daily_report.name
-  target_id = "ReportLambda"
-  arn       = aws_lambda_function.report_lambda.arn
+  rule = aws_cloudwatch_event_rule.daily_report.name
+  arn  = aws_lambda_function.report_lambda.arn
 }
