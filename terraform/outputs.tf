@@ -1,7 +1,7 @@
-output "input_bucket" {
-  value = aws_s3_bucket.input_bucket.bucket
+output "processor_lambda_name" {
+  value = aws_lambda_function.processor_lambda.function_name
 }
 
-output "output_bucket" {
-  value = aws_s3_bucket.output_bucket.bucket
+output "report_lambda_name" {
+  value = aws_lambda_function.report_lambda.function_name
 }
