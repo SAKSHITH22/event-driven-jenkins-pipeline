@@ -1,6 +1,14 @@
 pipeline {
     agent any
 
+    parameters {
+        choice(
+            name: 'ACTION',
+            choices: ['apply', 'destroy'],
+            description: 'Choose apply to create resources or destroy to delete resources'
+        )
+    }
+
     environment {
         AWS_DEFAULT_REGION = 'us-east-1'
     }
@@ -8,6 +16,9 @@ pipeline {
     stages {
 
         stage('Package Lambda') {
+            when {
+                expression { params.ACTION == 'apply' }
+            }
             steps {
                 sh '''
                 cd lambda
@@ -27,6 +38,9 @@ pipeline {
         }
 
         stage('Terraform Plan') {
+            when {
+                expression { params.ACTION == 'apply' }
+            }
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
                                   credentialsId: 'aws-root-creds']]) {
@@ -36,6 +50,9 @@ pipeline {
         }
 
         stage('Terraform Apply') {
+            when {
+                expression { params.ACTION == 'apply' }
+            }
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
                                   credentialsId: 'aws-root-creds']]) {
@@ -43,14 +60,26 @@ pipeline {
                 }
             }
         }
+
+        stage('Terraform Destroy') {
+            when {
+                expression { params.ACTION == 'destroy' }
+            }
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
+                                  credentialsId: 'aws-root-creds']]) {
+                    sh 'cd terraform && terraform destroy -auto-approve'
+                }
+            }
+        }
     }
 
     post {
         success {
-            echo 'Deployment Successful!'
+            echo "Terraform ${params.ACTION} completed successfully!"
         }
         failure {
-            echo 'Deployment Failed!'
+            echo "Terraform ${params.ACTION} failed!"
         }
     }
 }
