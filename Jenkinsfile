@@ -7,28 +7,21 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
-            steps {
-                git branch: 'main',
-                url: 'https://github.com/YOUR_USERNAME/event-driven-pipeline.git'
-            }
-        }
-
         stage('Terraform Init') {
             steps {
-                sh 'cd Code/terraform && terraform init'
+                sh 'cd terraform && terraform init'
             }
         }
 
         stage('Terraform Plan') {
             steps {
-                sh 'cd Code/terraform && terraform plan'
+                sh 'cd terraform && terraform plan'
             }
         }
 
         stage('Terraform Apply') {
             steps {
-                sh 'cd Code/terraform && terraform apply -auto-approve'
+                sh 'cd terraform && terraform apply -auto-approve'
             }
         }
     }
