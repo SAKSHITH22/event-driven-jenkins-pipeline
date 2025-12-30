@@ -10,7 +10,7 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
-                                  credentialsId: 'aws-creds']]) {
+                                  credentialsId: 'aws-root-creds']]) {
                     sh 'cd terraform && terraform init'
                 }
             }
@@ -19,7 +19,7 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
-                                  credentialsId: 'aws-creds']]) {
+                                  credentialsId: 'aws-root-creds']]) {
                     sh 'cd terraform && terraform plan'
                 }
             }
@@ -28,7 +28,7 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
-                                  credentialsId: 'aws-creds']]) {
+                                  credentialsId: 'aws-root-creds']]) {
                     sh 'cd terraform && terraform apply -auto-approve'
                 }
             }
