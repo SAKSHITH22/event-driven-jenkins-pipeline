@@ -7,6 +7,16 @@ pipeline {
 
     stages {
 
+        stage('Package Lambda') {
+            steps {
+                sh '''
+                cd lambda
+                zip -r processor.zip processor.py
+                zip -r report.zip report_generator.py
+                '''
+            }
+        }
+
         stage('Terraform Init') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
