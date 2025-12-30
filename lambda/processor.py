@@ -1,10 +1,6 @@
-import json
-
 def lambda_handler(event, context):
-    print("New data received")
-    print(json.dumps(event))
-  
+    print("Event received:", event)
     return {
         "statusCode": 200,
-        "body": "Data processed successfully"
+        "message": "Event processed successfully"
     }
