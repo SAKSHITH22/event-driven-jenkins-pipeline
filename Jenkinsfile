@@ -26,11 +26,15 @@ pipeline {
             }
         }
 
-        stage('Terraform Plan') {
+        stage('Terraform Refresh & Plan') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
                                   credentialsId: 'aws-root-creds']]) {
-                    sh 'cd terraform && terraform plan'
+                    sh '''
+                    cd terraform
+                    terraform refresh
+                    terraform plan
+                    '''
                 }
             }
         }
@@ -54,4 +58,3 @@ pipeline {
         }
     }
 }
-
