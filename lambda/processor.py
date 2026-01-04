@@ -1,5 +1,6 @@
 import json
 import boto3
+import urllib.parse
 
 s3 = boto3.client("s3")
 
@@ -11,19 +12,22 @@ def lambda_handler(event, context):
     # Get uploaded file details
     record = event["Records"][0]
     input_bucket = record["s3"]["bucket"]["name"]
-    input_key = record["s3"]["object"]["key"]
+    object_key = urllib.parse.unquote_plus(
+        record["s3"]["object"]["key"]
+    )
 
-    print(f"Processing file: {input_key} from bucket: {input_bucket}")
-
-    # Read input file
-    response = s3.get_object(Bucket=input_bucket, Key=input_key)
+    # Read file from input bucket
+    response = s3.get_object(
+        Bucket=input_bucket,
+        Key=object_key
+    )
     content = response["Body"].read().decode("utf-8")
 
     # Simple processing
     processed_content = content.upper()
 
-    # Write output file
-    output_key = f"processed-{input_key}"
+    # Write to output bucket
+    output_key = f"processed-{object_key}"
     s3.put_object(
         Bucket=OUTPUT_BUCKET,
         Key=output_key,
@@ -34,5 +38,5 @@ def lambda_handler(event, context):
 
     return {
         "statusCode": 200,
-        "message": "File processed successfully"
+        "message": "File processed and stored successfully"
     }
