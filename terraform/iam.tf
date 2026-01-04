@@ -30,3 +30,44 @@ resource "aws_iam_role_policy" "lambda_policy" {
     }]
   })
 }
+resource "aws_iam_role_policy" "lambda_policy" {
+  name = "lambda-inline-policy"
+  role = aws_iam_role.lambda_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+
+      # CloudWatch Logs (required)
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "*"
+      },
+
+      # Read from INPUT bucket
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject"
+        ]
+        Resource = "arn:aws:s3:::event-input-bucket-12345/*"
+      },
+
+      # Write to OUTPUT bucket
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:PutObject"
+        ]
+        Resource = "arn:aws:s3:::event-output-bucket-12345/*"
+      }
+    ]
+  })
+}
+
+
