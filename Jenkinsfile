@@ -8,7 +8,7 @@ pipeline {
   parameters {
     booleanParam(
       name: 'DESTROY',
-      defaultValue: false,
+      defaultValue: true,
       description: '⚠️ Check this to DESTROY all AWS infrastructure'
     )
   }
