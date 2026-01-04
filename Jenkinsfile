@@ -8,7 +8,7 @@ pipeline {
   parameters {
     booleanParam(
       name: 'DESTROY',
-      defaultValue: false,
+      defaultValue: true,
       description: '⚠️ Check this to DESTROY all AWS infrastructure'
     )
   }
@@ -17,7 +17,7 @@ pipeline {
 
     stage('Package Lambda') {
       when {
-        expression { params.DESTROY == false }
+        expression { params.DESTROY == true }
       }
       steps {
         sh '''
@@ -39,7 +39,7 @@ pipeline {
 
     stage('Terraform Plan') {
       when {
-        expression { params.DESTROY == false }
+        expression { params.DESTROY == true }
       }
       steps {
         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
@@ -51,7 +51,7 @@ pipeline {
 
     stage('Terraform Apply') {
       when {
-        expression { params.DESTROY == false }
+        expression { params.DESTROY == true }
       }
       steps {
         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
