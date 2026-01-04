@@ -5,25 +5,14 @@ pipeline {
     AWS_DEFAULT_REGION = 'us-east-1'
   }
 
-  parameters {
-    booleanParam(
-      name: 'DESTROY',
-      defaultValue: false,
-      description: '⚠️ Check this to DESTROY all AWS infrastructure'
-    )
-  }
-
   stages {
 
     stage('Package Lambda') {
-      when {
-        expression { params.DESTROY == false }
-      }
       steps {
         sh '''
-          cd lambda
-          zip -r processor.zip processor.py
-          zip -r report.zip report_generator.py
+        cd lambda
+        zip -r processor.zip processor.py
+        zip -r report.zip report_generator.py
         '''
       }
     }
@@ -38,9 +27,6 @@ pipeline {
     }
 
     stage('Terraform Plan') {
-      when {
-        expression { params.DESTROY == false }
-      }
       steps {
         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
                           credentialsId: 'aws-root-creds']]) {
@@ -50,9 +36,6 @@ pipeline {
     }
 
     stage('Terraform Apply') {
-      when {
-        expression { params.DESTROY == false }
-      }
       steps {
         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
                           credentialsId: 'aws-root-creds']]) {
@@ -60,26 +43,22 @@ pipeline {
         }
       }
     }
-
-    stage('Terraform Destroy') {
-      when {
-        expression { params.DESTROY == true }
-      }
-      steps {
+   stage('Terraform Destroy') {
+     steps {
         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
                           credentialsId: 'aws-root-creds']]) {
-          sh 'cd terraform && terraform destroy -auto-approve'
+            sh 'cd terraform && terraform destroy -auto-approve'
         }
-      }
     }
+}
   }
 
   post {
     success {
-      echo '✅ Pipeline completed successfully!'
+      echo 'Deployment Successful!'
     }
     failure {
-      echo '❌ Pipeline failed!'
+      echo 'Deployment Failed!'
     }
   }
 }
