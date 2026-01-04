@@ -1,35 +1,26 @@
-resource "aws_iam_role_policy" "lambda_policy" {
-  name = "lambda-inline-policy"
-  role = aws_iam_role.lambda_role.id
+resource "aws_s3_bucket" "input_bucket" {
+  bucket = "event-input-bucket-12345"
+}
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
+resource "aws_s3_bucket" "output_bucket" {
+  bucket = "event-output-bucket-12345"
+}
 
-      # CloudWatch Logs
-      {
-        Effect = "Allow"
-        Action = [
-          "logs:CreateLogGroup",
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ]
-        Resource = "*"
-      },
+resource "aws_lambda_permission" "allow_s3_invoke" {
+  statement_id  = "AllowS3Invoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.processor_lambda.function_name
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.input_bucket.arn
+}
 
-      # S3 Read from input bucket
-      {
-        Effect = "Allow"
-        Action = ["s3:GetObject"]
-        Resource = "arn:aws:s3:::event-input-bucket-12345/*"
-      },
+resource "aws_s3_bucket_notification" "input_trigger" {
+  bucket = aws_s3_bucket.input_bucket.id
 
-      # S3 Write to output bucket
-      {
-        Effect = "Allow"
-        Action = ["s3:PutObject"]
-        Resource = "arn:aws:s3:::event-output-bucket-12345/*"
-      }
-    ]
-  })
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.processor_lambda.arn
+    events              = ["s3:ObjectCreated:*"]
+  }
+
+  depends_on = [aws_lambda_permission.allow_s3_invoke]
 }
