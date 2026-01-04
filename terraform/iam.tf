@@ -13,15 +13,13 @@ resource "aws_iam_role" "lambda_role" {
   })
 }
 
-resource "aws_iam_role_policy" "lambda_combined_policy" {
-  name = "lambda-combined-policy"
+resource "aws_iam_role_policy" "lambda_policy" {
+  name = "lambda-inline-policy"
   role = aws_iam_role.lambda_role.id
 
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
-
-      # CloudWatch Logs
       {
         Effect = "Allow"
         Action = [
@@ -31,19 +29,16 @@ resource "aws_iam_role_policy" "lambda_combined_policy" {
         ]
         Resource = "*"
       },
-
-      # Read from input bucket
       {
         Effect = "Allow"
-        Action = ["s3:GetObject"]
-        Resource = "arn:aws:s3:::event-input-bucket-12345/*"
-      },
-
-      # Write to output bucket
-      {
-        Effect = "Allow"
-        Action = ["s3:PutObject"]
-        Resource = "arn:aws:s3:::event-output-bucket-12345/*"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject"
+        ]
+        Resource = [
+          "arn:aws:s3:::event-input-bucket-12345/*",
+          "arn:aws:s3:::event-output-bucket-12345/*"
+        ]
       }
     ]
   })
