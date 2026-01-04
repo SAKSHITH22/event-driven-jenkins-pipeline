@@ -51,7 +51,7 @@ pipeline {
 
     stage('Terraform Apply') {
       when {
-        expression { params.DESTROY == true }
+        expression { params.DESTROY == false }
       }
       steps {
         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
@@ -63,7 +63,7 @@ pipeline {
 
     stage('Terraform Destroy') {
       when {
-        expression { params.DESTROY == false }
+        expression { params.DESTROY == true }
       }
       steps {
         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
